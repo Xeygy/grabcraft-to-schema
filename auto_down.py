@@ -63,4 +63,7 @@ if __name__ == "__main__":
         urls = f.readlines()
         pbar = tqdm(urls)
         for url in pbar:
-            get_and_save_slices(url.strip(), args.dir, pbar.set_description)
+            try:
+                get_and_save_slices(url.strip(), args.dir, pbar.set_description)
+            except Exception as e:
+                print(f"Error with {url}: {e}")
