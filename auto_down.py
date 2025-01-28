@@ -7,15 +7,13 @@ import numpy as np
 from pathlib import Path
 import argparse
 import hashlib
+from tqdm import tqdm
 
 '''
-Script to automatically download image schematics from grabcraft
+Script to automatically download image schematics from grabcraft given a list of urls
+--urls: file with urls of the Grabcraft models, see data/houses.txt
+--dir: directory to store the data, default is 'dataset'
 '''
-MODEL_URLS = [
-    "https://www.grabcraft.com/minecraft/gothic-medieval-church/churches#model3d",
-    "https://www.grabcraft.com/minecraft/rustic-medieval-church/churches",
-    "https://www.grabcraft.com/minecraft/tauren-longhouse/other-193",
-]
 
 # Load the block map
 gts.load_block_map("data/blockmap.csv")
@@ -27,10 +25,10 @@ def batch_save(urls):
 def hash_str(s):
     return str(hashlib.md5(s.encode()).hexdigest())
 
-def get_and_save_slices(url, save_dir):
+def get_and_save_slices(url, save_dir, pfunc=print):
     schem = gts.url_to_render_object_data(url)
     url_hash = hash_str(url)[1:5] # to avoid name collisions
-    print(f"Done downloading {url}\n")
+    pfunc(f"Done downloading")
 
     img, name, dims = gts.render_object_to_png_slice(schem, with_metadata=True)
     name = name.replace(" ", "_")
@@ -40,13 +38,14 @@ def get_and_save_slices(url, save_dir):
 
     # check if directory is empty 
     if any(Path(save_dir).iterdir()):
-        print(f"Directory {save_dir} is already populated, skipping...")
+        pfunc(f"Directory {save_dir} is already populated, skipping...")
         return
 
     for i in range(length):
         # crop pil image (left, up, right, down)
         left_border, right_border = i * width, (i + 1) * width
         img.crop((left_border, 0, right_border, height)).save(f"{save_dir}/{name}_{i}.png")
+    pfunc(f"Done writing {length} ims for {name}.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -62,5 +61,6 @@ if __name__ == "__main__":
 
     with open(args.urls, 'r') as f:
         urls = f.readlines()
-        for url in urls:
-            get_and_save_slices(url.strip(), args.dir)
+        pbar = tqdm(urls)
+        for url in pbar:
+            get_and_save_slices(url.strip(), args.dir, pbar.set_description)
