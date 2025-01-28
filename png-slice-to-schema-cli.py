@@ -1,5 +1,5 @@
-import grabcraft_to_schema as gts
-import blockmodel_avg_mapper as bam
+import lib.grabcraft_to_schema as gts
+import lib.blockmodel_avg_mapper as bam
 import json
 import PIL
 from PIL import Image

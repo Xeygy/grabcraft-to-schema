@@ -6,7 +6,7 @@ import json
 import csv
 import PIL
 from PIL import Image
-import blockmodel_avg_mapper as bam
+import lib.blockmodel_avg_mapper as bam
 import numpy as np
 
 block_map = {}
