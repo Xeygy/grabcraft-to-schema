@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 # Get the blockmodel_avgs
-blockmodel_avgs_df = pd.read_csv("blockmodel_avgs.csv").transpose()
+blockmodel_avgs_df = pd.read_csv("data/blockmodel_avgs.csv").transpose()
 raw_blockmodel_avgs = blockmodel_avgs_df.to_dict()
 
 # Decode it into a nice easy to use datastructures

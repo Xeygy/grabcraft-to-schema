@@ -6,7 +6,7 @@ from PIL import Image
 import numpy as np
 
 # Load the block map
-gts.load_block_map("blockmap.csv")
+gts.load_block_map("data/blockmap.csv")
 
 # A demo link that you can try to use:
 # "https://www.grabcraft.com/minecraft/gothic-medieval-church/churches#model3d"

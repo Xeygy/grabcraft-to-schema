@@ -6,7 +6,7 @@ from PIL import Image
 import numpy as np
 
 # Load the block map
-gts.load_block_map("blockmap.csv")
+gts.load_block_map("data/blockmap.csv")
 
 # Get the data from the user
 png_slice_loc = input("Enter the location to the png slice: ")
