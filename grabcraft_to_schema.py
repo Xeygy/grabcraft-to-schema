@@ -57,7 +57,7 @@ class RenderObject:
         self.dims = dims
         self.tags = tags
 
-def render_object_to_png_slice(render_object):
+def render_object_to_png_slice(render_object, with_metadata=False):
         width, height, length = render_object.dims
         # Create an image of the proper size (each slice is x & z which each slice having a different y)
         # The slices are stored on one image and are stored horizontally from one another
@@ -72,17 +72,21 @@ def render_object_to_png_slice(render_object):
         for x, yz in ro_json.items():
             for y, z in yz.items():
                 for _, data in z.items():
-                    block_loc = (int(data['x']) - 1, int(data['y']) - 1, int(data['z']) - 1)
+                    bx, by, bz = (int(data['x']) - 1, int(data['y']) - 1, int(data['z']) - 1)
                     grabcraft_block = data["name"]
                     block = grabcraft_block_to_block(grabcraft_block)
                     block = block[block.find(':') + 1:]
                     block_color = bam.get_block_avg_color(block)
 
-                    if isinstance(block_color, np.ndarray) and block_loc[0] < width and block_loc[1] < height and block_loc[2] < length:
+                    if isinstance(block_color, np.ndarray) and bx < width and by < height and bz < length:
                         block_color = tuple(block_color.astype(dtype=np.int64))
-                        pixel_map[block_loc[1] * width + block_loc[0], block_loc[2]] = block_color
+                        # we render the image layer by layer, so y goes horizontally
+                        pixel_map[by * width + bx, bz] = block_color
 
-        return image
+        if with_metadata:
+            return image, render_object.name, render_object.dims 
+        else:        
+            return image
 
 # A SIGNIFICANT AMOUNT OF DATA IS LOST AND SOME BLOCKS MIGHT BE SUBSTITUED FOR OTHER BLOCKS WITH THE SAME COLOR
 def png_slice_to_schema(png_slice, dims):
@@ -122,7 +126,8 @@ def render_object_to_schema(render_object):
 # Get the url to the render object from the webpage for the build
 def url_to_render_object_data(url):
     # Getting the webpage itself
-    res = requests.get(url[:url.find('#')] + "#general").text
+    base_url = url[:url.find('#')] if '#' in url else url
+    res = requests.get(base_url + "#general").text
 
     # The index for the renderObject's info
     render_object_i = res.find("myRenderObject")
